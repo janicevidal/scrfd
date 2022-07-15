@@ -7,6 +7,7 @@ from collections import OrderedDict
 import mmcv
 import numpy as np
 from mmcv.utils import print_log
+from terminaltables import AsciiTable
 
 from mmdet.core import eval_recalls
 from .builder import DATASETS
