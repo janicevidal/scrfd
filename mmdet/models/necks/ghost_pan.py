@@ -17,6 +17,9 @@ import torch.nn as nn
 from mmdet.models.backbones.ghostnet import GhostBottleneck
 from mmdet.models.backbones.conv import ConvModule, DepthwiseConvModule
 
+from ..builder import NECKS
+from mmcv.runner import auto_fp16
+
 
 class GhostBlocks(nn.Module):
     """Stack of GhostBottleneck used in GhostPAN.
@@ -71,7 +74,7 @@ class GhostBlocks(nn.Module):
             out = out + self.reduce_conv(x)
         return out
 
-
+@NECKS.register_module()
 class GhostPAN(nn.Module):
     """Path Aggregation Network with Ghost block.
 
@@ -197,7 +200,8 @@ class GhostPAN(nn.Module):
                     activation=activation,
                 )
             )
-
+            
+    @auto_fp16()
     def forward(self, inputs):
         """
         Args:
