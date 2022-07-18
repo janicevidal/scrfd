@@ -26,10 +26,8 @@ data = dict(
     workers_per_gpu=0,
     train=dict(
         type='RetinaFaceDataset',
-        # ann_file='E:/Dataset/retinaface/train/labelv2.txt',
-        # img_prefix='E:/Dataset/retinaface/train/images/',
-        ann_file='/mnt/zhangxs/retinaface/train/labelv2.txt',
-        img_prefix='/mnt/zhangxs/retinaface/train/images/',
+        ann_file='E:/Dataset/retinaface/train/labelv2.txt',
+        img_prefix='E:/Dataset/retinaface/train/images/',
         pipeline=[
             dict(type='LoadImageFromFile', to_float32=True),
             dict(type='LoadAnnotations', with_bbox=True, with_keypoints=True),
@@ -61,10 +59,8 @@ data = dict(
         ]),
     val=dict(
         type='RetinaFaceDataset',
-        # ann_file='E:/Dataset/retinaface/val/labelv2.txt',
-        # img_prefix='E:/Dataset/retinaface/val/images/',
-        ann_file='/mnt/zhangxs/retinaface/val/labelv2.txt',
-        img_prefix='/mnt/zhangxs/retinaface/val/images/',
+        ann_file='E:/Dataset/retinaface/val/labelv2.txt',
+        img_prefix='E:/Dataset/retinaface/val/images/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
@@ -116,7 +112,7 @@ model = dict(
     neck=dict(
         type='GhostPAN',
         in_channels=[96, 128, 128],
-        out_channels=32,
+        out_channels=64,
         kernel_size=5,
         num_extra_level=0,
         use_depthwise=True,
@@ -125,7 +121,7 @@ model = dict(
     bbox_head=dict(
         type='SCRFDHead',
         num_classes=1,
-        in_channels=32,
+        in_channels=16,
         stacked_convs=2,
         feat_channels=64,
         norm_cfg=dict(type='BN', requires_grad=True),

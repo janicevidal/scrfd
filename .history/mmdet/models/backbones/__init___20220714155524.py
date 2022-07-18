@@ -13,14 +13,8 @@ from .trident_resnet import TridentResNet
 
 from .mobilenet import MobileNetV1
 
-from .sandnet import SandNet
-from .ghostnet import GhostNet
-from .shufflenetv2 import ShuffleNetV2
-from .repvgg import RepVGG
-
 __all__ = [
     'RegNet', 'ResNet', 'ResNetV1d', 'ResNetV1e', 'ResNeXt', 'SSDVGG', 'HRNet', 'Res2Net',
     'HourglassNet', 'DetectoRS_ResNet', 'DetectoRS_ResNeXt', 'Darknet',
-    'ResNeSt', 'TridentResNet', 'MobileNetV1', 
-    'SandNet', 'GhostNet', 'ShuffleNetV2', 'RepVGG'
+    'ResNeSt', 'TridentResNet', 'MobileNetV1'
 ]

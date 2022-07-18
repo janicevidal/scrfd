@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES="0" PORT=29701 bash ./tools/dist_train.sh ./configs/scrfd_zxs/scrfd_kps_zxs.py
