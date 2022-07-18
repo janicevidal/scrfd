@@ -1,15 +1,16 @@
-optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0005)
+# optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0005)
+optimizer = dict(type='Adamw', lr=0.001)
 optimizer_config = dict(grad_clip=None)
 lr_mult = 2
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=1500,
+    warmup_iters=1000,
     warmup_ratio=0.001,
     step=[55*lr_mult, 68*lr_mult])
 total_epochs = 80*lr_mult
-checkpoint_config = dict(interval=80)
-log_config = dict(interval=100, hooks=[dict(type='TextLoggerHook'),
+checkpoint_config = dict(interval=1)
+log_config = dict(interval=20, hooks=[dict(type='TextLoggerHook'),
                                        dict(type='TensorboardLoggerHook')])
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
@@ -118,10 +119,10 @@ model = dict(
         type='GhostPAN',
         in_channels=[96, 128, 128],
         out_channels=32,
-        kernel_size=5,
+        kernel_size=3,
         num_extra_level=0,
         use_depthwise=True,
-        activation="LeakyReLU",
+        activation="ReLU",
         upsample_cfg=dict(scale_factor=2, mode="nearest")),
     bbox_head=dict(
         type='SCRFDHead',
@@ -139,7 +140,7 @@ model = dict(
             type='AnchorGenerator',
             ratios=[1.0],
             scales=[1, 2],
-            base_sizes=[16, 64, 256],
+            base_sizes=[12, 48, 192],
             strides=[8, 16, 32]),
         loss_cls=dict(
             type='QualityFocalLoss',
@@ -175,4 +176,4 @@ test_cfg = dict(
     nms=dict(type='nms', iou_threshold=0.45),
     max_per_img=-1)
 epoch_multi = 1
-evaluation = dict(interval=80, metric='mAP')
+evaluation = dict(interval=5, metric='mAP')

@@ -1,6 +1,6 @@
 optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0005)
 optimizer_config = dict(grad_clip=None)
-lr_mult = 2
+lr_mult = 8
 lr_config = dict(
     policy='step',
     warmup='linear',
@@ -9,8 +9,7 @@ lr_config = dict(
     step=[55*lr_mult, 68*lr_mult])
 total_epochs = 80*lr_mult
 checkpoint_config = dict(interval=80)
-log_config = dict(interval=100, hooks=[dict(type='TextLoggerHook'),
-                                       dict(type='TensorboardLoggerHook')])
+log_config = dict(interval=100, hooks=[dict(type='TextLoggerHook')])
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 load_from = None
@@ -23,7 +22,7 @@ val_root = 'data/retinaface/val/'
 img_norm_cfg = dict(
     mean=[127.5, 127.5, 127.5], std=[128.0, 128.0, 128.0], to_rgb=True)
 data = dict(
-    samples_per_gpu=128,
+    samples_per_gpu=64,
     workers_per_gpu=8,
     train=dict(
         type='RetinaFaceDataset',

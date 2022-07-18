@@ -4,12 +4,12 @@ lr_mult = 2
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=1500,
+    warmup_iters=1000,
     warmup_ratio=0.001,
     step=[55*lr_mult, 68*lr_mult])
 total_epochs = 80*lr_mult
-checkpoint_config = dict(interval=80)
-log_config = dict(interval=100, hooks=[dict(type='TextLoggerHook'),
+checkpoint_config = dict(interval=1)
+log_config = dict(interval=20, hooks=[dict(type='TextLoggerHook'),
                                        dict(type='TensorboardLoggerHook')])
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
@@ -22,13 +22,57 @@ train_root = 'data/retinaface/train/'
 val_root = 'data/retinaface/val/'
 img_norm_cfg = dict(
     mean=[127.5, 127.5, 127.5], std=[128.0, 128.0, 128.0], to_rgb=True)
+train_pipeline = [
+    dict(type='LoadImageFromFile', to_float32=True),
+    dict(type='LoadAnnotations', with_bbox=True, with_keypoints=True),
+    dict(
+        type='RandomSquareCrop',
+        crop_choice=[0.3, 0.45, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]),
+    dict(type='Resize', img_scale=(640, 640), keep_ratio=False),
+    dict(type='RandomFlip', flip_ratio=0.5),
+    dict(
+        type='PhotoMetricDistortion',
+        brightness_delta=32,
+        contrast_range=(0.5, 1.5),
+        saturation_range=(0.5, 1.5),
+        hue_delta=18),
+    dict(
+        type='Normalize',
+        mean=[127.5, 127.5, 127.5],
+        std=[128.0, 128.0, 128.0],
+        to_rgb=True),
+    dict(type='DefaultFormatBundle'),
+    dict(
+        type='Collect',
+        keys=[
+            'img', 'gt_bboxes', 'gt_labels', 'gt_bboxes_ignore',
+            'gt_keypointss'
+        ])
+]
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(
+        type='MultiScaleFlipAug',
+        img_scale=(640, 640),
+        flip=False,
+        transforms=[
+            dict(type='Resize', keep_ratio=True),
+            dict(type='RandomFlip', flip_ratio=0.0),
+            dict(
+                type='Normalize',
+                mean=[127.5, 127.5, 127.5],
+                std=[128.0, 128.0, 128.0],
+                to_rgb=True),
+            dict(type='Pad', size=(640, 640), pad_val=0),
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='Collect', keys=['img'])
+        ])
+]
 data = dict(
-    samples_per_gpu=128,
+    samples_per_gpu=64,
     workers_per_gpu=8,
     train=dict(
         type='RetinaFaceDataset',
-        # ann_file='E:/Dataset/retinaface/train/labelv2.txt',
-        # img_prefix='E:/Dataset/retinaface/train/images/',
         ann_file='/mnt/zhangxs/retinaface/train/labelv2.txt',
         img_prefix='/mnt/zhangxs/retinaface/train/images/',
         pipeline=[
@@ -37,9 +81,9 @@ data = dict(
             dict(
                 type='RandomSquareCrop',
                 crop_choice=[
-                    0.3, 0.45, 0.6, 0.8, 1.0]
-                ),
-            dict(type='Resize', img_scale=(320, 320), keep_ratio=False),
+                    0.3, 0.45, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0
+                ]),
+            dict(type='Resize', img_scale=(640, 640), keep_ratio=False),
             dict(type='RandomFlip', flip_ratio=0.5),
             dict(
                 type='PhotoMetricDistortion',
@@ -62,15 +106,13 @@ data = dict(
         ]),
     val=dict(
         type='RetinaFaceDataset',
-        # ann_file='E:/Dataset/retinaface/val/labelv2.txt',
-        # img_prefix='E:/Dataset/retinaface/val/images/',
         ann_file='/mnt/zhangxs/retinaface/val/labelv2.txt',
         img_prefix='/mnt/zhangxs/retinaface/val/images/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
-                img_scale=(320, 320),
+                img_scale=(640, 640),
                 flip=False,
                 transforms=[
                     dict(type='Resize', keep_ratio=True),
@@ -80,20 +122,20 @@ data = dict(
                         mean=[127.5, 127.5, 127.5],
                         std=[128.0, 128.0, 128.0],
                         to_rgb=True),
-                    dict(type='Pad', size=(320, 320), pad_val=0),
+                    dict(type='Pad', size=(640, 640), pad_val=0),
                     dict(type='ImageToTensor', keys=['img']),
                     dict(type='Collect', keys=['img'])
                 ])
         ]),
     test=dict(
         type='RetinaFaceDataset',
-        ann_file='data/retinaface/val/labelv2.txt',
-        img_prefix='data/retinaface/val/images/',
+        ann_file='/mnt/zhangxs/retinaface/val/labelv2.txt',
+        img_prefix='/mnt/zhangxs/retinaface/val/images/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
-                img_scale=(320, 320),
+                img_scale=(640, 640),
                 flip=False,
                 transforms=[
                     dict(type='Resize', keep_ratio=True),
@@ -103,7 +145,7 @@ data = dict(
                         mean=[127.5, 127.5, 127.5],
                         std=[128.0, 128.0, 128.0],
                         to_rgb=True),
-                    dict(type='Pad', size=(320, 320), pad_val=0),
+                    dict(type='Pad', size=(640, 640), pad_val=0),
                     dict(type='ImageToTensor', keys=['img']),
                     dict(type='Collect', keys=['img'])
                 ])
@@ -111,22 +153,21 @@ data = dict(
 model = dict(
     type='SCRFD',
     backbone=dict(
-        type='SandNet',
+        type='MobileNetV1',
         block_cfg=dict(
-            midchannel=[32, 32, 32], depth=[3, 5, 3])),
+            stage_blocks=(2, 3, 2, 6), stage_planes=[16, 16, 40, 72, 152,
+                                                     288])),
     neck=dict(
-        type='GhostPAN',
-        in_channels=[96, 128, 128],
-        out_channels=32,
-        kernel_size=5,
-        num_extra_level=0,
-        use_depthwise=True,
-        activation="LeakyReLU",
-        upsample_cfg=dict(scale_factor=2, mode="nearest")),
+        type='PAFPN',
+        in_channels=[40, 72, 152, 288],
+        out_channels=16,
+        start_level=1,
+        add_extra_convs='on_output',
+        num_outs=3),
     bbox_head=dict(
         type='SCRFDHead',
         num_classes=1,
-        in_channels=32,
+        in_channels=16,
         stacked_convs=2,
         feat_channels=64,
         norm_cfg=dict(type='BN', requires_grad=True),
@@ -175,4 +216,4 @@ test_cfg = dict(
     nms=dict(type='nms', iou_threshold=0.45),
     max_per_img=-1)
 epoch_multi = 1
-evaluation = dict(interval=80, metric='mAP')
+evaluation = dict(interval=5, metric='mAP')
