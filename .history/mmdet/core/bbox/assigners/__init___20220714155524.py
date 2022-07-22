@@ -7,10 +7,9 @@ from .grid_assigner import GridAssigner
 from .hungarian_assigner import HungarianAssigner
 from .max_iou_assigner import MaxIoUAssigner
 from .point_assigner import PointAssigner
-from .atss_assigner_dynamic import  ATSSAssignerDynamic
 
 __all__ = [
     'BaseAssigner', 'MaxIoUAssigner', 'ApproxMaxIoUAssigner', 'AssignResult',
     'PointAssigner', 'ATSSAssigner', 'CenterRegionAssigner', 'GridAssigner',
-    'HungarianAssigner','ATSSAssignerDynamic'
+    'HungarianAssigner'
 ]
