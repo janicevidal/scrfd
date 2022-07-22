@@ -90,7 +90,7 @@ class StemBlock(nn.Module):
         super(StemBlock, self).__init__()
 
         # self.stem_left = ConvK3(channel, channel + 8, stride=2)
-        self.stem_left = ConvBN(channel, channel, 3, stride=2, padding=1, deploy=deploy, 
+        self.stem_left = ConvBN(channel, channel + 8, 3, stride=2, padding=1, deploy=deploy, 
                                 nonlinear=nn.ReLU(inplace=True))
         
         self.stem_right = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -180,7 +180,7 @@ class SandNet(nn.Module):
                                 nonlinear=nn.ReLU(inplace=True))
 
         # stage 2: stride 4 feature map
-        self.layer2 = StemBlock(12, 24, deploy=self.deploy)
+        self.layer2 = StemBlock(12, 32, deploy=self.deploy)
    
         # contrcut block using ''bottleneck'' class
         self.block3 = self._make_block(bottleneck, midchannel_comb[0], 3,

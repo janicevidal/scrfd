@@ -91,7 +91,7 @@ def main():
     for pipeline in pipelines:
         if pipeline.type=='MultiScaleFlipAug':
             if args.mode==0: #640 scale
-                pipeline.img_scale = (640, 640)
+                pipeline.img_scale = (320, 320)
             elif args.mode==1: #for single scale in other pages
                 pipeline.img_scale = (1100, 1650)
             elif args.mode==2: #original scale
@@ -129,10 +129,12 @@ def main():
     model = build_detector(cfg.model, train_cfg=None, test_cfg=cfg.test_cfg)
     fp16_cfg = cfg.get('fp16', None)
     checkpoint = load_checkpoint(model, args.checkpoint, map_location='cpu')
-    if 'CLASSES' in checkpoint['meta']:
-        model.CLASSES = checkpoint['meta']['CLASSES']
-    else:
-        model.CLASSES = dataset.CLASSES
+    # if 'CLASSES' in checkpoint['meta']:
+        # model.CLASSES = checkpoint['meta']['CLASSES']
+   # else:
+        # model.CLASSES = dataset.CLASSES
+
+    model.CLASSES = dataset.CLASSES
 
     if args.show_assign:
         gts_easy, gts_medium, gts_hard = get_widerface_gts(gt_path)

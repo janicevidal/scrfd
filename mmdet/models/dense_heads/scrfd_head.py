@@ -198,16 +198,16 @@ class SCRFDHead(AnchorHead):
             self.cls_stride_convs[key] = cls_convs
             self.reg_stride_convs[key] = reg_convs
             self.stride_cls[key] = nn.Conv2d(
-                feat_ch, self.cls_out_channels * self.num_anchors, 3, padding=1)
+                feat_ch, self.cls_out_channels * self.num_anchors, 1, padding=0)
             if not self.use_dfl:
                 self.stride_reg[key] = nn.Conv2d(
-                    feat_ch, 4 * self.num_anchors, 3, padding=1)
+                    feat_ch, 4 * self.num_anchors, 1, padding=0)
             else:
                 self.stride_reg[key] = nn.Conv2d(
                     feat_ch, 4 * (self.reg_max + 1) * self.num_anchors, 3, padding=1)
             if self.use_kps:
                 self.stride_kps[key] = nn.Conv2d(
-                    feat_ch, self.NK*2*self.num_anchors, 3, padding=1)
+                    feat_ch, self.NK*2*self.num_anchors, 1, padding=0)
         #assert self.num_anchors == 1, 'anchor free version'
         #extra_gflops /= 1e9
         #print('extra_gflops: %.6fG'%extra_gflops)
