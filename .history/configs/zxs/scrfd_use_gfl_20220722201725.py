@@ -147,7 +147,7 @@ model = dict(
             use_sigmoid=True,
             beta=2.0,
             loss_weight=1.0),
-        loss_dfl=False,
+        loss_dfl=True,
         reg_max=7,
         loss_bbox=dict(type='SIoULoss', loss_weight=2.0),
         use_kps=True,
